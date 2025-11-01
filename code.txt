@@ -1,0 +1,1236 @@
+
+
+==============================
+📄 File: Crawler_Logic/Crawler.py
+==============================
+from Crawler_Logic.crawl_arxiv import crawl_arxiv
+from Crawler_Logic.crawl_biorxiv import crawl_biorxiv
+from Crawler_Logic.crawl_dblp import crawl_dblp
+from Crawler_Logic.crawl_doaj import crawl_doaj
+from Crawler_Logic.crawl_openalex import crawl_openalex
+from Crawler_Logic.crawl_ieee import crawl_ieee
+from Crawler_Logic.crawl_pubmed import crawl_pubmed
+from Crawler_Logic.crawl_sciencedirect import crawl_sciencedirect
+from Crawler_Logic.crawl_springer import crawl_springer
+import os
+
+
+class Crawler:
+    def __init__(self, topic, max_papers, save_to_file):
+        self.topic = self.normalize_topic(topic)
+        self.max_papers = max_papers
+        self.save_to_file = save_to_file
+
+        self.arxiv_res = []
+        self.bioxiv_res = []
+        self.dblp_res = []
+        self.doaj_res = []
+        self.openalex_res = []
+        self.ieee_res = []
+        self.pubmed_res = []
+        self.sciencedirect_res = []
+        self.springer_res = []
+        self.all_papers = []
+
+    def normalize_topic(self, topic):
+        topic = topic.strip().replace("_", " ")
+        return " ".join(word.capitalize() for word in topic.split())
+
+    def safe_run(self, func, name):
+        try:
+            print(f"Collecting {name} Papers")
+            res = func(topic=self.topic, max_papers=self.max_papers)
+            if not res:
+                print(f"No Papers Collected from {name}")
+            else:
+                print(f"Collected {len(res)} papers from {name}")
+            return res
+        except Exception as e:
+            print(f"❌ Cannot collect papers from {name}: {e}")
+            return []
+
+    def run_all(self):
+        print(f"\n🚀 Starting Crawl for Topic: {self.topic}\n")
+
+        self.arxiv_res = self.safe_run(crawl_arxiv, "Arxiv")
+        self.bioxiv_res = self.safe_run(crawl_biorxiv, "BioRxiv")
+        self.dblp_res = self.safe_run(crawl_dblp, "DBLP")
+        self.doaj_res = self.safe_run(crawl_doaj, "DOAJ")
+        self.openalex_res = self.safe_run(crawl_openalex, "OpenAlex")
+        self.ieee_res = self.safe_run(crawl_ieee, "IEEE")
+        self.pubmed_res = self.safe_run(crawl_pubmed, "PubMed")
+        self.sciencedirect_res = self.safe_run(crawl_sciencedirect, "ScienceDirect")
+        self.springer_res = self.safe_run(crawl_springer, "Springer")
+
+        self.all_papers = (
+            self.arxiv_res +
+            self.bioxiv_res +
+            self.dblp_res +
+            self.doaj_res +
+            self.openalex_res +
+            self.ieee_res +
+            self.pubmed_res +
+            self.sciencedirect_res +
+            self.springer_res
+        )
+
+        if self.save_to_file and self.all_papers:
+            filename = f"research_{self.topic.replace(' ', '_').lower()}.txt"
+
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(f"Research Papers on: {self.topic}\n")
+                f.write(f"Total Collected: {len(self.all_papers)}\n")
+                f.write("=" * 80 + "\n\n")
+
+                for idx, paper in enumerate(self.all_papers, 1):
+                    f.write(f"Paper #{idx}\n")
+                    f.write(f"Title: {paper.get('title', 'N/A')}\n")
+                    f.write(f"Authors: {paper.get('authors', 'N/A')}\n")
+                    f.write(f"Publication Date: {paper.get('date', 'N/A')}\n")
+                    f.write(f"Abstract: {paper.get('abstract', 'N/A')}\n")
+                    f.write("-" * 80 + "\n\n")
+
+            print(f"\n📦 Number of Papers -> {len(self.all_papers)}")
+            print(f"💾 Saved all papers to '{filename}'")
+
+        return self.all_papers
+
+
+==============================
+📄 File: Crawler_Logic/crawl_arxiv.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_arxiv(topic, max_papers=5):
+    print(f"\n Searching arXiv for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://arxiv.org/search/?query={encoded_topic}&searchtype=all"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: arXiv took too long to respond.")
+        return []
+    
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ HTTP Error {response.status_code} while fetching arXiv: {e}")
+        return []
+    
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to arXiv.")
+        return []
+    
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching arXiv: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        papers = soup.find_all('li', class_='arxiv-result')
+        if not papers:
+            print("⚠️ No papers found on arXiv (possible layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 arXiv: Processing {i}/{len(papers)}")
+
+            try:
+                title_tag = paper.find('p', class_='title is-5 mathjax')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                link_tag = paper.find('p', class_='list-title is-inline-block')
+                link = link_tag.find('a')['href'] if link_tag and link_tag.find('a') else "N/A"
+
+                authors_tag = paper.find('p', class_='authors')
+                authors = authors_tag.get_text(strip=True).replace('Authors:', '') if authors_tag else "N/A"
+
+                date_tag = paper.find('p', class_='is-size-7')
+                date = date_tag.get_text(strip=True) if date_tag else "N/A"
+
+                abstract_tag = paper.find('span', class_='abstract-full has-text-grey-dark mathjax')
+                abstract = abstract_tag.get_text(strip=True).replace('△ Less', '') if abstract_tag else "N/A"
+
+                pdf_link_tag = paper.find('a', string='pdf')
+                pdf_link = pdf_link_tag['href'] if pdf_link_tag else "N/A"
+                if pdf_link != "N/A" and not pdf_link.startswith('http'):
+                    pdf_link = "https://arxiv.org" + pdf_link
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': link
+                })
+                time.sleep(1)
+            except Exception as e:
+                print(f"⚠️ Error processing a paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on arXiv HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from arXiv")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_biorxiv.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_biorxiv(topic, max_papers=5):
+    print(f"\n Searching BioRxiv for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://www.biorxiv.org/search/{encoded_topic}%20numresults%3A{max_papers}%20sort%3Arelevance-rank"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: BioRxiv took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching BioRxiv: {e}")
+        if status == 403:
+            print("🔒 Access denied (403) — BioRxiv might be blocking automated requests.")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to BioRxiv.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching BioRxiv: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        papers = soup.find_all('div', class_='highwire-citation')
+        if not papers:
+            print("⚠️ No papers found on BioRxiv (possible layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 BioRxiv: Processing {i}/{len(papers)}")
+            try:
+                title_tag = paper.find('span', class_='highwire-citation-title')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                authors_tag = paper.find('span', class_='highwire-citation-authors')
+                authors = authors_tag.get_text(strip=True) if authors_tag else "N/A"
+
+                date_tag = paper.find('span', class_='highwire-cite-metadata-date')
+                date = date_tag.get_text(strip=True) if date_tag else "N/A"
+
+                link_tag = paper.find('a', class_='highwire-cite-linked-title')
+                paper_link = urllib.parse.urljoin("https://www.biorxiv.org", link_tag['href']) if link_tag and link_tag.has_attr('href') else "N/A"
+
+                pdf_link = "N/A"
+                if paper_link != "N/A" and 'abstract' in paper_link:
+                    pdf_link = paper_link.replace('abstract', 'full.pdf')
+
+                abstract = "N/A"
+                if paper_link != "N/A":
+                    try:
+                        sub = requests.get(paper_link, headers=headers, timeout=10)
+                        sub.raise_for_status()
+                        sub_soup = BeautifulSoup(sub.content, 'html.parser')
+                        abs_tag = sub_soup.find('div', class_='section abstract')
+                        abstract = abs_tag.get_text(strip=True).replace('Abstract', '') if abs_tag else "N/A"
+                    except requests.exceptions.Timeout:
+                        print(f"⏰ Timeout when fetching abstract for '{title}'")
+                    except requests.exceptions.HTTPError as e:
+                        st = getattr(e.response, "status_code", "unknown")
+                        print(f"❌ HTTP {st} when fetching abstract for '{title}'")
+                    except Exception as e:
+                        print(f"⚠️ Failed to fetch abstract for '{title}': {e}")
+                        abstract = "N/A"
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': paper_link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in BioRxiv paper: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing a BioRxiv paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on BioRxiv HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from BioRxiv")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_dblp.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_dblp(topic, max_papers=5):
+    print(f"\n Searching DBLP for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://dblp.org/search?q={encoded_topic}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36'
+    }
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: DBLP took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching DBLP: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to DBLP.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching DBLP: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        papers = soup.find_all('li', class_='entry')
+        if not papers:
+            print("⚠️ No papers found on DBLP (possible layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 DBLP: Processing {i}/{len(papers)}")
+            try:
+                title_tag = paper.find('span', class_='title')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                authors_tags = paper.find_all('span', itemprop='author')
+                authors = ', '.join(a.get_text(strip=True) for a in authors_tags) if authors_tags else "N/A"
+
+                year_tag = paper.find('span', class_='year')
+                date = year_tag.get_text(strip=True) if year_tag else "N/A"
+
+                link_tag = paper.find('a', href=True)
+                paper_link = link_tag['href'] if link_tag else "N/A"
+
+                # DBLP usually doesn't provide abstract on search result page
+                abstract = "N/A"
+                pdf_link = "N/A"
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': paper_link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in DBLP paper: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing a DBLP paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on DBLP HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from DBLP")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_doaj.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_doaj(topic, max_papers=5):
+    print(f"\n Searching DOAJ for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://doaj.org/search/articles?ref=homepage&q={encoded_topic}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36'
+    }
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: DOAJ took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching DOAJ: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to DOAJ.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching DOAJ: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        papers = soup.find_all('div', class_='search-result') or soup.find_all('article', class_='search-result')
+        if not papers:
+            print("⚠️ No papers found on DOAJ (possible layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 DOAJ: Processing {i}/{len(papers)}")
+            try:
+                title_tag = paper.find('a', class_='title') or paper.find('h3')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                link = title_tag['href'] if title_tag and title_tag.has_attr('href') else "N/A"
+                if link != "N/A" and not link.startswith('http'):
+                    link = urllib.parse.urljoin("https://doaj.org", link)
+
+                authors_tag = paper.find('div', class_='authors')
+                authors = authors_tag.get_text(strip=True) if authors_tag else "N/A"
+
+                date = "N/A"
+                abstract = "N/A"
+                pdf_link = "N/A"
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in DOAJ paper: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing a DOAJ paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on DOAJ HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from DOAJ")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_ieee.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_ieee(topic, max_papers=5):
+    print(f"\n Searching IEEE Xplore for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText={encoded_topic}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36'
+    }
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: IEEE Xplore took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching IEEE: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to IEEE Xplore.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching IEEE Xplore: {e}")
+        return []
+
+    try:
+        # NOTE: IEEE often requires JS. Attempt the static page; if empty, inform user.
+        soup = BeautifulSoup(response.content, 'html.parser')
+        papers = soup.find_all('div', class_='List-results-items') or soup.find_all('div', class_='List-results-item')
+        if not papers:
+            print("⚠️ No papers found on IEEE (site may require JS/API access).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 IEEE: Processing {i}/{len(papers)}")
+            try:
+                title_tag = paper.find('h2') or paper.find('h3')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                link_tag = title_tag.find('a') if title_tag else None
+                link = urllib.parse.urljoin("https://ieeexplore.ieee.org", link_tag['href']) if link_tag and link_tag.has_attr('href') else "N/A"
+
+                authors = "N/A"
+                date = "N/A"
+                abstract = "N/A"
+                pdf_link = "N/A"
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in IEEE paper: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing an IEEE paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on IEEE HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from IEEE")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_openalex.py
+==============================
+import requests
+import urllib.parse
+import time
+
+def crawl_openalex(topic, max_papers=5):
+    print(f"\n Searching OpenAlex for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    api_url = f"https://api.openalex.org/works?filter=title.search:{encoded_topic}&per_page={max_papers}"
+    headers = {
+        'User-Agent': 'OpenAlexCrawler/1.0 (mailto:youremail@example.com)'
+    }
+    results = []
+
+    try:
+        response = requests.get(api_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: OpenAlex API took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching OpenAlex: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to OpenAlex.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching OpenAlex: {e}")
+        return []
+
+    try:
+        data = response.json()
+    except Exception as e:
+        print(f"⚠️ Failed to parse JSON from OpenAlex: {e}")
+        return []
+
+    works = data.get('results', [])
+    if not works:
+        print("⚠️ No papers found on OpenAlex (empty results).")
+        return []
+
+    for i, item in enumerate(works[:max_papers], 1):
+        print(f"📄 OpenAlex: Processing {i}/{len(works)}")
+        try:
+            title = item.get('display_name') or item.get('title') or "N/A"
+            authors = ', '.join(a.get('author', {}).get('display_name', '') for a in item.get('authorships', [])).strip() or "N/A"
+            date = item.get('publication_date') or item.get('publication_year') or "N/A"
+
+            # OpenAlex abstracts often come in inverted-index form or as 'abstract' field
+            abstract = "N/A"
+            abstract_idx = item.get('abstract_inverted_index')
+            if abstract_idx:
+                try:
+                    # reconstruct from inverted index keys (best-effort)
+                    abstract = " ".join(abstract_idx.keys()) if isinstance(abstract_idx, dict) else str(abstract_idx)
+                except Exception:
+                    abstract = "N/A"
+            else:
+                abstract = item.get('abstract', "N/A")
+
+            paper_link = item.get('id', "N/A")
+            pdf_link = item.get('primary_location', {}).get('landing_page_url', "N/A")
+
+            results.append({
+                'title': title,
+                'authors': authors,
+                'date': date,
+                'abstract': abstract,
+                'paper_link': paper_link
+            })
+            time.sleep(1)
+        except KeyError as e:
+            print(f"⚠️ Missing expected key in OpenAlex item: {e}")
+        except Exception as e:
+            print(f"⚠️ Error processing an OpenAlex item: {e}")
+            continue
+
+    print(f"✅ Collected {len(results)} papers from OpenAlex")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_pubmed.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_pubmed(topic, max_papers=5):
+    print(f"\n Searching PubMed for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://pubmed.ncbi.nlm.nih.gov/?term={encoded_topic}"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: PubMed took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ HTTP Error {response.status_code} while fetching PubMed: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to PubMed.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching PubMed: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        papers = soup.find_all('article', class_='full-docsum')
+        if not papers:
+            print("⚠️ No papers found on PubMed (possible layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 PubMed: Processing {i}/{len(papers)}")
+
+            try:
+                title_tag = paper.find('a', class_='docsum-title')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+                link = "https://pubmed.ncbi.nlm.nih.gov" + title_tag['href'] if title_tag else "N/A"
+                authors = paper.find('span', class_='docsum-authors full-authors').get_text(strip=True) if paper.find('span', class_='docsum-authors full-authors') else "N/A"
+                date = paper.find('span', class_='docsum-journal-citation full-journal-citation')
+                date = date.get_text(strip=True).split('.')[0] if date else "N/A"
+
+                abstract = "N/A"
+                try:
+                    sub = requests.get(link, headers=headers, timeout=10)
+                    sub.raise_for_status()
+                    sub_soup = BeautifulSoup(sub.text, 'html.parser')
+                    abs_tag = sub_soup.find('div', class_='abstract-content selected')
+                    abstract = abs_tag.get_text(strip=True) if abs_tag else "N/A"
+                except Exception as e:
+                    print(f"⚠️ Skipping abstract for '{title}' due to: {e}")
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in paper data: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing a paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on PubMed HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from PubMed")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_sciencedirect.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_sciencedirect(topic, max_papers=5):
+    print(f"\n Searching ScienceDirect for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://www.sciencedirect.com/search?qs={encoded_topic}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36'
+    }
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: ScienceDirect took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching ScienceDirect: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to ScienceDirect.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching ScienceDirect: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        papers = soup.find_all('div', class_='result-item-content')
+        if not papers:
+            print("⚠️ No papers found on ScienceDirect (possible JS rendering or layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 ScienceDirect: Processing {i}/{len(papers)}")
+            try:
+                title_tag = paper.find('h2') or paper.find('a', class_='result-list-title-link')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                link_tag = paper.find('a', href=True)
+                link = urllib.parse.urljoin("https://www.sciencedirect.com", link_tag['href']) if link_tag else "N/A"
+
+                authors_tag = paper.find('span', class_='Authors')
+                authors = authors_tag.get_text(strip=True) if authors_tag else "N/A"
+
+                date = "N/A"
+                abstract = "N/A"
+                pdf_link = "N/A"
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in ScienceDirect paper: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing a ScienceDirect paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on ScienceDirect HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from ScienceDirect")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/crawl_springer.py
+==============================
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import time
+
+def crawl_springer(topic, max_papers=5):
+    print(f"\n Searching Springer for {topic}")
+    encoded_topic = urllib.parse.quote(topic)
+    search_url = f"https://link.springer.com/search?query={encoded_topic}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36'
+    }
+    results = []
+
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: Springer took too long to respond.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, "status_code", "unknown")
+        print(f"❌ HTTP Error {status} while fetching Springer: {e}")
+        return []
+    except requests.exceptions.ConnectionError:
+        print("🔌 Network error: Could not connect to Springer.")
+        return []
+    except Exception as e:
+        print(f"⚠️ Unexpected error while fetching Springer: {e}")
+        return []
+
+    try:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        papers = soup.find_all('li', class_='has-cover')
+        if not papers:
+            print("⚠️ No papers found on Springer (possible layout change).")
+            return []
+
+        for i, paper in enumerate(papers[:max_papers], 1):
+            print(f"📄 Springer: Processing {i}/{len(papers)}")
+            try:
+                title_tag = paper.find('h2') or paper.find('h3')
+                title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+                link_tag = title_tag.find('a') if title_tag else None
+                link = urllib.parse.urljoin("https://link.springer.com", link_tag['href']) if link_tag and link_tag.has_attr('href') else "N/A"
+
+                authors_tag = paper.find('span', class_='authors') or paper.find('span', class_='authors__name')
+                authors = authors_tag.get_text(strip=True) if authors_tag else "N/A"
+
+                date_tag = paper.find('span', class_='year')
+                date = date_tag.get_text(strip=True) if date_tag else "N/A"
+
+                abstract = "N/A"
+                pdf_link = "N/A"
+
+                # Try to fetch abstract page if link available
+                if link != "N/A":
+                    try:
+                        sub = requests.get(link, headers=headers, timeout=10)
+                        sub.raise_for_status()
+                        sub_soup = BeautifulSoup(sub.content, 'html.parser')
+                        abs_tag = sub_soup.find('section', class_='Abstract') or sub_soup.find('section', class_='c-article-section__content')
+                        abstract = abs_tag.get_text(strip=True).replace('Abstract', '') if abs_tag else "N/A"
+                    except Exception as e:
+                        print(f"⚠️ Skipping abstract fetch for '{title}': {e}")
+
+                results.append({
+                    'title': title,
+                    'authors': authors,
+                    'date': date,
+                    'abstract': abstract,
+                    'paper_link': link
+                })
+                time.sleep(1)
+            except KeyError as e:
+                print(f"⚠️ Missing expected key in Springer paper: {e}")
+            except Exception as e:
+                print(f"⚠️ Error processing a Springer paper: {e}")
+                continue
+
+    except Exception as e:
+        print(f"⚠️ Parsing error on Springer HTML: {e}")
+        return []
+
+    print(f"✅ Collected {len(results)} papers from Springer")
+    return results
+
+
+==============================
+📄 File: Crawler_Logic/__init__.py
+==============================
+
+
+
+==============================
+📄 File: MySQL_Database/clear_table.py
+==============================
+def clear_articles_table(connection):
+    """Truncate (clear) the articles table."""
+    if connection is None:
+        print("⚠️ No active connection. Please connect first.")
+        return
+
+    try:
+        cursor = connection.cursor()
+        cursor.execute("TRUNCATE TABLE articles")
+        connection.commit()
+        cursor.close()
+        print("🧹 Cleared all existing data from 'articles' table.")
+    except Exception as e:
+        print(f"❌ Error clearing table: {e}")
+
+
+==============================
+📄 File: MySQL_Database/collect_papers.py
+==============================
+from Crawler_Logic.Crawler import Crawler
+
+def collect_papers(topic, max_papers=20, save_to_file=False):
+    """Use the crawler to collect papers based on the topic."""
+    crawler = Crawler(topic, max_papers, save_to_file)
+    papers = crawler.run_all()
+
+    if not papers:
+        print("⚠️ No papers found by crawler.")
+        return []
+
+    print(f"✅ Collected {len(papers)} papers from Crawler.")
+    return papers
+
+
+==============================
+📄 File: MySQL_Database/create_table.py
+==============================
+from MySQL_Database.get_connection import get_connection
+from mysql.connector import Error
+
+def create_table():
+    db = get_connection()
+    if db is None:
+        print("⚠️ Could not establish database connection. Aborting table creation.")
+        return
+
+    try:
+        cursor = db.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS articles (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT,
+            authors TEXT,
+            pub_date VARCHAR(100),
+            abstract TEXT,
+            paper_link TEXT
+        )
+        """)
+        db.commit()
+        print("✅ Table 'articles' is ready.")
+    except Error as e:
+        print(f"❌ Error while creating table: {e}")
+    finally:
+        cursor.close()
+        db.close()
+
+
+==============================
+📄 File: MySQL_Database/db_config.py
+==============================
+db_config = {
+    "host": "localhost",
+    "user": "root",
+    "password": "Ketan@777",
+    "database": "Intelli_Research_Project"
+}
+
+
+==============================
+📄 File: MySQL_Database/get_connection.py
+==============================
+from MySQL_Database.db_config import db_config
+import mysql
+from mysql.connector import Error
+
+def get_connection():
+    try:
+        connection = mysql.connector.connect(**db_config)
+        if connection.is_connected():
+            return connection
+    except Error as e:
+        print(f"❌ Database connection error: {e}")
+        return None
+
+
+==============================
+📄 File: MySQL_Database/insert_to_table.py
+==============================
+from mysql.connector import Error
+def insert_paper(db, paper):
+    try:
+        cursor = db.cursor()
+        query = """
+            INSERT INTO articles (title, authors, pub_date, abstract, paper_link)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        data = (
+            paper.get("title", "N/A"),
+            paper.get("authors", "N/A"),
+            paper.get("date", "N/A"),
+            paper.get("abstract", "N/A"),
+            paper.get("link", "N/A")
+        )
+        cursor.execute(query, data)
+        db.commit()
+    except Error as e:
+        print(f"❌ Error inserting paper: {e}")
+    finally:
+        cursor.close()
+
+
+==============================
+📄 File: MySQL_Database/MySql_Class.py
+==============================
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from MySQL_Database.get_connection import get_connection
+from MySQL_Database.create_table import create_table
+from MySQL_Database.insert_to_table import insert_paper
+from MySQL_Database.clear_table import clear_articles_table
+from MySQL_Database.collect_papers import collect_papers
+
+
+class MySQLMain:
+    def __init__(self):
+        self.connection = None
+        print("✅ MySQLMain initialized.")
+
+    def connect(self):
+        """Establish a database connection."""
+        self.connection = get_connection()
+        if self.connection:
+            print("✅ Connected successfully to MySQL database.")
+        else:
+            print("❌ Failed to connect to MySQL database.")
+
+    def create_articles_table(self):
+        """Create 'articles' table if it doesn't exist."""
+        create_table()
+
+    def clear_table(self):
+        """Clear data from 'articles' table."""
+        clear_articles_table(self.connection)
+
+    def collect_papers(self, topic, max_papers=20, save_to_file=False):
+        """Collect papers using crawler logic."""
+        return collect_papers(topic, max_papers, save_to_file)
+
+    def insert_papers(self, papers):
+        """Insert multiple papers into MySQL database."""
+        if self.connection is None:
+            print("⚠️ No active connection. Please connect first.")
+            return
+        if not papers:
+            print("⚠️ No papers to insert.")
+            return
+
+        for paper in papers:
+            insert_paper(self.connection, paper)
+        print(f"✅ Inserted {len(papers)} papers into 'articles' table.")
+
+    def close_connection(self):
+        """Close the active MySQL connection."""
+        if self.connection:
+            self.connection.close()
+            self.connection = None
+            print("🔒 Database connection closed.")
+        else:
+            print("⚠️ No connection to close.")
+
+
+==============================
+📄 File: MySQL_Database/__init__.py
+==============================
+
+
+
+==============================
+📄 File: Vector_DB/clear_collection.py
+==============================
+def clear(client, collection):
+    name = collection.name
+    client.delete_collection(name)
+    print(f"🧹 Deleted existing collection '{name}'.")
+    new_collection = client.get_or_create_collection(name=name)
+    print(f"✅ Recreated empty collection '{name}'.")
+    return new_collection
+
+
+==============================
+📄 File: Vector_DB/init_connection.py
+==============================
+# init_connection.py
+import chromadb
+from sentence_transformers import SentenceTransformer
+
+def initialize_chroma(db_path, collection_name):
+    client = chromadb.PersistentClient(path=db_path)
+    print("✅ Connected to ChromaDB.")
+
+    collection = client.get_or_create_collection(name=collection_name)
+    print(f"✅ Collection '{collection_name}' is ready.")
+
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    print("✅ Embedding model loaded.")
+
+    return client, collection, model
+
+
+==============================
+📄 File: Vector_DB/insert_data.py
+==============================
+# insert_data.py
+
+def insert_papers(collection, model, papers):
+    titles = [paper.get("title", "N/A") for paper in papers]
+    ids = [str(i) for i in range(1, len(titles) + 1)]
+    embeddings = model.encode(titles).tolist()
+
+    collection.add(
+        ids=ids,
+        documents=titles,
+        embeddings=embeddings,
+        metadatas=papers
+    )
+
+
+==============================
+📄 File: Vector_DB/query_data.py
+==============================
+def search(collection, model, query, top_k):
+    query_emb = model.encode([query]).tolist()
+    results = collection.query(
+        query_embeddings=query_emb,
+        n_results=top_k
+    )
+    return results
+
+
+==============================
+📄 File: Vector_DB/VectorDBManager.py
+==============================
+# vector_db_manager.py
+from Vector_DB.init_connection import initialize_chroma
+from Vector_DB.insert_data import insert_papers
+from Vector_DB.query_data import search
+from Vector_DB.clear_collection import clear
+
+class VectorDBManager:
+    def __init__(self, db_path="chroma_db", collection_name="article_embeddings"):
+        self.client, self.collection, self.model = initialize_chroma(db_path, collection_name)
+        print("✅ VectorDBManager initialized successfully.")
+
+    def insert_papers(self, papers):
+        """Insert papers into vector database"""
+        insert_papers(self.collection, self.model, papers)
+        print(f"✅ Inserted {len(papers)} embeddings into ChromaDB.")
+
+    def search(self, query, top_k=5):
+        """Search for similar papers"""
+        results = search(self.collection, self.model, query, top_k)
+
+        print(f"\n🔍 Search results for '{query}':")
+        
+        for i, title in enumerate(results["documents"][0]):
+            score = results["distances"][0][i]
+            print(f"  {i+1}. {title} (distance: {score:.4f})")
+        return results
+
+    def clear(self):
+        """Clear the collection"""
+        self.collection = clear(self.client, self.collection)
+        print(f"🧹 Cleared all data in collection '{self.collection.name}'.")
+
+
+==============================
+📄 File: Vector_DB/__init__.py
+==============================
+
+
+
+==============================
+📄 File: ResearchClass.py
+==============================
+# ResearchOrchestrator.py
+from Crawler_Logic.Crawler import Crawler
+from MySQL_Database.create_table import create_table
+from MySQL_Database.get_connection import get_connection
+from MySQL_Database.insert_to_table import insert_paper
+from Vector_DB.VectorDBManager import VectorDBManager
+
+class ResearchOrchestrator:
+    def __init__(self, topic, max_papers=20, save_to_file=False,
+                 chroma_db_path="chroma_db", collection_name="article_embeddings"):
+        self.topic = topic
+        self.max_papers = max_papers
+        self.save_to_file = save_to_file
+
+        self.crawler = Crawler(topic, max_papers, save_to_file)
+        self.db_connection = None
+        self.vector_db = VectorDBManager(db_path=chroma_db_path, collection_name=collection_name)
+
+    def crawl_papers(self):
+        print(f"\n🚀 Starting full crawl for topic: '{self.topic}'")
+        self.papers = self.crawler.run_all()
+        print(f"\n📦 Total papers collected: {len(self.papers)}")
+        return self.papers
+
+    def push_to_mysql(self):
+        if not hasattr(self, "papers") or not self.papers:
+            print("⚠️ No papers to push. Please run crawl_papers() first.")
+            return
+
+        create_table()
+        self.db_connection = get_connection()
+        if self.db_connection is None:
+            print("❌ Database connection failed. Aborting push.")
+            return
+
+        cursor = self.db_connection.cursor()
+        cursor.execute("TRUNCATE TABLE articles")
+        self.db_connection.commit()
+        cursor.close()
+        print("🧹 Cleared old MySQL data.")
+
+        for paper in self.papers:
+            insert_paper(self.db_connection, paper)
+        print(f"✅ Inserted {len(self.papers)} papers into MySQL.")
+
+    def push_to_vector_db(self):
+        if not hasattr(self, "papers") or not self.papers:
+            print("⚠️ No papers to insert. Please run crawl_papers() first.")
+            return
+
+        self.vector_db.insert_papers(self.papers)
+
+    def search_vector_db(self, query, top_k=5):
+        self.vector_db.search(query, top_k)
+
+    def clear_vector_db(self):
+        self.vector_db.clear()
+
+    # New unified function
+    def run_pipeline(self, search_query=None, top_k=5, clear_before_push=False):
+        if clear_before_push:
+            self.clear_vector_db()
+
+        self.crawl_papers()
+        self.push_to_mysql()
+        self.push_to_vector_db()
+
+        if search_query:
+            self.search_vector_db(search_query, top_k)

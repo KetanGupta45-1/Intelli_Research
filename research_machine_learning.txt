@@ -1,0 +1,295 @@
+Research Papers on: Machine Learning
+Total Collected: 40
+================================================================================
+
+Paper #1
+Title: Retaining by Doing: The Role of On-Policy Data in Mitigating Forgetting
+Authors: Howard Chen,Noam Razin,Karthik Narasimhan,Danqi Chen
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Adapting language models (LMs) to new tasks via post-training carries the risk of degrading existing capabilities -- a phenomenon classically known as catastrophic forgetting. In this paper, toward identifying guidelines for mitigating this phenomenon, we systematically compare the forgetting patterns of two widely adopted post-training methods: supervised fine-tuning (SFT) and reinforcementlearning(RL). Our experiments reveal a consistent trend across LM families (Llama, Qwen) and tasks (instruction following, general knowledge, and arithmetic reasoning): RL leads to less forgetting than SFT while achieving comparable or higher target task performance. To investigate the cause for this difference, we consider a simplified setting in which the LM is modeled as a mixture of two distributions, one corresponding to prior knowledge and the other to the target task. We identify that the mode-seeking nature of RL, which stems from its use of on-policy data, enables keeping prior knowledge intact whenlearningthe target task. We then verify this insight by demonstrating that the use on-policy data underlies the robustness of RL to forgetting in practical settings, as opposed to other algorithmic choices such as the KL regularization or advantage estimation. Lastly, as a practical implication, our results highlight the potential of mitigating forgetting using approximately on-policy data, which can be substantially more efficient to obtain than fully on-policy data.
+--------------------------------------------------------------------------------
+
+Paper #2
+Title: LightMem: Lightweight and Efficient Memory-Augmented Generation
+Authors: Jizhan Fang,Xinle Deng,Haoming Xu,Ziyan Jiang,Yuqi Tang,Ziwen Xu,Shumin Deng,Yunzhi Yao,Mengru Wang,Shuofei Qiao,Huajun Chen,Ningyu Zhang
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Despite their remarkable capabilities, Large Language Models (LLMs) struggle to effectively leverage historical interaction information in dynamic and complex environments. Memory systems enable LLMs to move beyond stateless interactions by introducing persistent information storage, retrieval, and utilization mechanisms. However, existing memory systems often introduce substantial time and computational overhead. To this end, we introduce a new memory system called LightMem, which strikes a balance between the performance and efficiency of memory systems. Inspired by the Atkinson-Shiffrin model of human memory, LightMem organizes memory into three complementary stages. First, cognition-inspired sensory memory rapidly filters irrelevant information through lightweight compression and groups information according to their topics. Next, topic-aware short-term memory consolidates these topic-based groups, organizing and summarizing content for more structured access. Finally, long-term memory with sleep-time update employs an offline procedure that decouples consolidation from online inference. Experiments on LongMemEval with GPT and Qwen backbones show that LightMem outperforms strong baselines in accuracy (up to 10.9% gains) while reducing token usage by up to 117x, API calls by up to 159x, and runtime by over 12x. The code is available at https://github.com/zjunlp/LightMem.
+--------------------------------------------------------------------------------
+
+Paper #3
+Title: An Encoder-Decoder Foundation Chemical Language Model for Generative Polymer Design
+Authors: Harikrishna Sahu,Wei Xiong,Anagha Savit,Shivank S Shukla,Rampi Ramprasad
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Traditionalmachinelearninghas advanced polymer discovery, yet direct generation of chemically valid and synthesizable polymers without exhaustive enumeration remains a challenge. Here we present polyT5, an encoder-decoder chemical language model based on the T5 architecture, trained to understand and generate polymer structures. polyT5 enables both property prediction and the targeted generation of polymers conditioned on desired property values. We demonstrate its utility for dielectric polymer design, seeking candidates with dielectric constant >3, bandgap >4 eV, and glass transition temperature >400 K, alongside melt-processability and solubility requirements. From over 20,000 generated promising candidates, one was experimentally synthesized and validated, showing strong agreement with predictions. To further enhance usability, we integrated polyT5 within an agentic AI framework that couples it with a general-purpose LLM, allowing natural language interaction for property prediction and generative design. Together, these advances establish a versatile and accessible framework for accelerated polymer discovery.
+--------------------------------------------------------------------------------
+
+Paper #4
+Title: Lyapunov-Aware Quantum-Inspired ReinforcementLearningfor Continuous-Time Vehicle Control: A Feasibility Study
+Authors: Nutkritta Kraipatthanapong,Natthaphat Thathong,Pannita Suksawas,Thanunnut Klunklin,Kritin Vongthonglua,Krit Attahakul,Aueaphum Aueawatthanaphisut
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: This paper presents a novel Lyapunov-Based Quantum ReinforcementLearning(LQRL) framework that integrates quantum policy optimization with Lyapunov stability analysis for continuous-time vehicle control. The proposed approach combines the representational power of variational quantum circuits (VQCs) with a stability-aware policy gradient mechanism to ensure asymptotic convergence and safe decision-making under dynamic environments. The vehicle longitudinal control problem was formulated as a continuous-state reinforcementlearningtask, where the quantum policy network generates control actions subject to Lyapunov stability constraints. Simulation experiments were conducted in a closed-loop adaptive cruise control scenario using a quantum-inspired policy trained under stability feedback. The results demonstrate that the LQRL framework successfully embeds Lyapunov stability verification into quantum policylearning, enabling interpretable and stability-aware control performance. Although transient overshoot and Lyapunov divergence were observed under aggressive acceleration, the system maintained bounded state evolution, validating the feasibility of integrating safety guarantees within quantum reinforcementlearningarchitectures. The proposed framework provides a foundational step toward provably safe quantum control in autonomous systems and hybrid quantum-classical optimization domains.
+--------------------------------------------------------------------------------
+
+Paper #5
+Title: Inference on Local Variable Importance Measures for Heterogeneous Treatment Effects
+Authors: Pawel Morzywolek,Peter B. Gilbert,Alex Luedtke
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: We provide an inferential framework to assess variable importance for heterogeneous treatment effects. This assessment is especially useful in high-risk domains such as medicine, where decision makers hesitate to rely on black-box treatment recommendation algorithms. The variable importance measures we consider are local in that they may differ across individuals, while the inference is global in that it tests whether a given variable is important for any individual. Our approach builds on recent developments in semiparametric theory for function-valued parameters, and is valid even when statisticalmachinelearningalgorithms are employed to quantify treatment effect heterogeneity. We demonstrate the applicability of our method to infectious disease prevention strategies.
+--------------------------------------------------------------------------------
+
+Paper #6
+Title: A Hybrid Enumeration Framework for Optimal Counterfactual Generation in Post-Acute COVID-19 Heart Failure
+Authors: Jingya Cheng,Alaleh Azhir,Jiazi Tian,Hossein Estiri
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Counterfactual inference provides a mathematical framework for reasoning about hypothetical outcomes under alternative interventions, bridging causal reasoning and predictive modeling. We present a counterfactual inference framework for individualized risk estimation and intervention analysis, illustrated through a clinical application to post-acute sequelae of COVID-19 (PASC) among patients with pre-existing heart failure (HF). Using longitudinal diagnosis, laboratory, and medication data from a large health-system cohort, we integrate regularized predictive modeling with counterfactual search to identify actionable pathways to PASC-related HF hospital admissions. The framework combines exact enumeration with optimization-based methods, including the Nearest Instance Counterfactual Explanations (NICE) and Multi-Objective Counterfactuals (MOC) algorithms, to efficiently explore high-dimensional intervention spaces. Applied to more than 2700 individuals with confirmed SARS-CoV-2 infection and prior HF, the model achieved strong discriminative performance (AUROC: 0.88, 95% CI: 0.84-0.91) and generated interpretable, patient-specific counterfactuals that quantify how modifying comorbidity patterns or treatment factors could alter predicted outcomes. This work demonstrates how counterfactual reasoning can be formalized as an optimization problem over predictive functions, offering a rigorous, interpretable, and computationally efficient approach to personalized inference in complex biomedical systems.
+--------------------------------------------------------------------------------
+
+Paper #7
+Title: FedDEAP: Adaptive Dual-Prompt Tuning for Multi-Domain FederatedLearning
+Authors: Yubin Zheng,Pak-Hei Yeung,Jing Xia,Tianjie Ju,Peng Tang,Weidong Qiu,Jagath C. Rajapakse
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Federatedlearning(FL) enables multiple clients to collaboratively trainmachinelearningmodels without exposing local data, balancing performance and privacy. However, domain shift and label heterogeneity across clients often hinder the generalization of the aggregated global model. Recently, large-scale vision-language models like CLIP have shown strong zero-shot classification capabilities, raising the question of how to effectively fine-tune CLIP across domains in a federated setting. In this work, we propose an adaptive federated prompt tuning framework, FedDEAP, to enhance CLIP's generalization in multi-domain scenarios. Our method includes the following three key components: (1) To mitigate the loss of domain-specific information caused by label-supervised tuning, we disentangle semantic and domain-specific features in images by using semantic and domain transformation networks with unbiased mappings; (2) To preserve domain-specific knowledge during global prompt aggregation, we introduce a dual-prompt design with a global semantic prompt and a local domain prompt to balance shared and personalized information; (3) To maximize the inclusion of semantic and domain information from images in the generated text features, we align textual and visual representations under the twolearnedtransformations to preserve semantic and domain consistency. Theoretical analysis and extensive experiments on four datasets demonstrate the effectiveness of our method in enhancing the generalization of CLIP for federated image recognition across multiple domains.
+--------------------------------------------------------------------------------
+
+Paper #8
+Title: MTraining: Distributed Dynamic Sparse Attention for Efficient Ultra-Long Context Training
+Authors: Wenxuan Li,Chengruidong Zhang,Huiqiang Jiang,Yucheng Li,Yuqing Yang,Lili Qiu
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: The adoption of long context windows has become a standard feature in Large Language Models (LLMs), as extended contexts significantly enhance their capacity for complex reasoning and broaden their applicability across diverse scenarios. Dynamic sparse attention is a promising approach for reducing the computational cost of long-context. However, efficiently training LLMs with dynamic sparse attention on ultra-long contexts-especially in distributed settings-remains a significant challenge, due in large part to worker- and step-level imbalance. This paper introduces MTraining, a novel distributed methodology leveraging dynamic sparse attention to enable efficient training for LLMs with ultra-long contexts. Specifically, MTraining integrates three key components: a dynamic sparse training pattern, balanced sparse ring attention, and hierarchical sparse ring attention. These components are designed to synergistically address the computational imbalance and communication overheads inherent in dynamic sparse attention mechanisms during the training of models with extensive context lengths. We demonstrate the efficacy of MTraining by training Qwen2.5-3B, successfully expanding its context window from 32K to 512K tokens on a cluster of 32 A100 GPUs. Our evaluations on a comprehensive suite of downstream tasks, including RULER, PG-19, InfiniteBench, and Needle In A Haystack, reveal that MTraining achieves up to a 6x higher training throughput while preserving model accuracy. Our code is available at https://github.com/microsoft/MInference/tree/main/MTraining.
+--------------------------------------------------------------------------------
+
+Paper #9
+Title: Actor-Free Continuous Control via Structurally Maximizable Q-Functions
+Authors: Yigit Korkmaz,Urvi Bhuwania,Ayush Jain,Erdem Bıyık
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Value-based algorithms are a cornerstone of off-policy reinforcementlearningdue to their simplicity and training stability. However, their use has traditionally been restricted to discrete action spaces, as they rely on estimating Q-values for individual state-action pairs. In continuous action spaces, evaluating the Q-value over the entire action space becomes computationally infeasible. To address this, actor-critic methods are typically employed, where a critic is trained on off-policy data to estimate Q-values, and an actor is trained to maximize the critic's output. Despite their popularity, these methods often suffer from instability during training. In this work, we propose a purely value-based framework for continuous control that revisits structural maximization of Q-functions, introducing a set of key architectural and algorithmic choices to enable efficient and stablelearning. We evaluate the proposed actor-free Q-learningapproach on a range of standard simulation tasks, demonstrating performance and sample efficiency on par with state-of-the-art baselines, without the cost oflearninga separate actor. Particularly, in environments with constrained action spaces, where the value functions are typically non-smooth, our method with structural maximization outperforms traditional actor-critic methods with gradient-based maximization. We have released our code at https://github.com/USC-Lira/Q3C.
+--------------------------------------------------------------------------------
+
+Paper #10
+Title: SO(3)-invariant PCA with application to molecular data
+Authors: Michael Fraiman,Paulina Hoyos,Tamir Bendory,Joe Kileel,Oscar Mickelin,Nir Sharon,Amit Singer
+Publication Date: Submitted21 October, 2025;originally announcedOctober 2025.
+Abstract: Principal component analysis (PCA) is a fundamental technique for dimensionality reduction and denoising; however, its application to three-dimensional data with arbitrary orientations -- common in structural biology -- presents significant challenges. A naive approach requires augmenting the dataset with many rotated copies of each sample, incurring prohibitive computational costs. In this paper, we extend PCA to 3D volumetric datasets with unknown orientations by developing an efficient and principled framework for SO(3)-invariant PCA that implicitly accounts for all rotations without explicit data augmentation. By exploiting underlying algebraic structure, we demonstrate that the computation involves only the square root of the total number of covariance entries, resulting in a substantial reduction in complexity. We validate the method on real-world molecular datasets, demonstrating its effectiveness and opening up new possibilities for large-scale, high-dimensional reconstruction problems.
+--------------------------------------------------------------------------------
+
+Paper #11
+Title: Gravitational least squares twin support vector machine based on optimal angle for class imbalance learning.
+Authors: Abdullah Mohammadi, Jalal A. Nasiri, Sohrab Effati
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #12
+Title: Machine learning applications in the diagnostic work-up of varicocele.
+Authors: Nicole Dalia Cilia, Donatella Paoli, Valerio Mario Salerno, Francesco Lombardo, Francesco Pallotti
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #13
+Title: Early prediction of fever and hypothermia in adult ICU patients using machine learning: A multicenter study.
+Authors: Arthur Malet, Pierre-Julien Cungi, François Antonini, Marc Leone, Julien Bordes, Nicolas Bruder, Lionel Velly, Salah Boussen
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #14
+Title: Type 2 diabetes mellitus associated pancreatic cancer prediction using combinations of machine learning models.
+Authors: Surabhi Seth, Kumardeep Chaudhary, Srinivasan Ramachandran
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #15
+Title: Dynamic PET/CT images and machine learning assessment for early diagnosis of liver cancer induced by DEN/CCl4 in mice.
+Authors: Junnan Wang, Wei Dong, Lei Zhang, Moujie Yang, Zhao Ge, Wei Fu, Junfei Jin
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #16
+Title: Enhancing patient treatment classification in healthcare: A comparative analysis of machine learning techniques on electronic health record data.
+Authors: Cheng yang, Xiaodong Su
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #17
+Title: Utilizing a combined approach of machine learning and structure-based drug design principles to identify potential hits targeting SphK1.
+Authors: Gulam Rabbani, Mohammad Ehtisham Khan, Mohammad Aslam, Waleed Zakri, Mohammad Fareed, Glowi Alasiri, Wahid Ali, Syed Kashif Ali, Mohd Imran, Abdulrahman Khamaj, Jintae Lee
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #18
+Title: Application of unsupervised machine learning methods to actor-critic structures in reinforcement learning for training and online implementation.
+Authors: Daniel Beahr, Debangsu Bhattacharyya
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #19
+Title: Alarms prediction and classification in industrial processes using supervised machine learning techniques: A case study in an Algerian gas plant.
+Authors: Samir Sekiou, Ali Behloul, Rachid Nait-Said, Zakarya Chiremsel
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #20
+Title: Machine learning-aided optimal design and distributed model predictive control of reactive dividing wall column.
+Authors: Haohao Zhang, Ping Luo, Chao Hua, Jinyi Chen, Qing Yuan
+Publication Date: N/A
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #21
+Title: Genetic algorithms in search, optimization, and machine learning
+Authors: N/A
+Publication Date: 1989-10-01
+Abstract: From the Publisher:
+This book brings together - in an informal and tutorial fashion computer techniques, mathematical tools, research results that will enable both students practitioners to apply genetic algorithms problems many fields. 
+
+Major concepts are illustrated with running examples, major by Pascal programs. No prior knowledge of GAs or genetics is assumed, only a minimum programming mathematics background required.
+--------------------------------------------------------------------------------
+
+Paper #22
+Title: C4.5: Programs for Machine Learning
+Authors: J. R. Quinlan
+Publication Date: 1992-10-15
+Abstract: From the Publisher:
+Classifier systems play a major role in machine learning and knowledge-based systems, Ross Quinlan's work on ID3 C4.5 is widely acknowledged to have made some of most significant contributions their development. This book complete guide system as implemented C for UNIX environment. It contains comprehensive system's use , source code (about 8,800 lines), implementation notes. The sample datasets are also available 3.5-inch floppy diskette Sun workstation.
+
+C4.5 starts with large sets cases belonging known classes. cases, described by any mixture nominal numeric properties, scrutinized patterns that allow classes be reliably discriminated. These then expressed models, form decision trees or if-then rules, can used classify new emphasis making models understandable well accurate. has been applied successfully tasks involving tens thousands hundreds properties. from simple core methods shows how they elaborated extended deal typical problems such missing data over hitting. Advantages disadvantages approach discussed illustrated several case studies.
+
+This software should interest developers classification-based intelligent students expert courses.
+--------------------------------------------------------------------------------
+
+Paper #23
+Title: UCI Machine Learning Repository
+Authors: Arthur Asuncion
+Publication Date: 2007-01-01
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #24
+Title: Pattern Recognition and Machine Learning
+Authors: Christopher Bishop
+Publication Date: 2007-01-01
+Abstract: The <i>Journal of Electronic Imaging</i> (JEI), copublished bimonthly with the Society for Imaging Science and Technology, publishes peer-reviewed papers that cover research applications in all areas electronic imaging science technology.
+--------------------------------------------------------------------------------
+
+Paper #25
+Title: Gaussian Processes for Machine Learning
+Authors: Carl Edward Rasmussen, Christopher K. I. Williams
+Publication Date: 2005-11-23
+Abstract: A comprehensive and self-contained introduction to Gaussian processes, which provide a principled, practical, probabilistic approach learning in kernel machines. processes (GPs) GPs have received increased attention the machine-learning community over past decade, this book provides long-needed systematic unified treatment of theoretical practical aspects machine learning. The is self-contained, targeted at researchers students applied statistics. deals with supervised-learning problem for both regression classification, includes detailed algorithms. wide variety covariance (kernel) functions are presented their properties discussed. Model selection discussed from Bayesian classical perspective. Many connections other well-known techniques statistics discussed, including support-vector machines, neural networks, splines, regularization relevance vector machines others. Theoretical issues curves PAC-Bayesian framework treated, several approximation methods large datasets contains illustrative examples exercises, code available on Web. Appendixes mathematical background discussion Markov processes.
+--------------------------------------------------------------------------------
+
+Paper #26
+Title: Data Mining: Practical Machine Learning Tools and Techniques
+Authors: Ian H. Witten, Eibe Frank, Mark A. Hall
+Publication Date: 2011-01-01
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #27
+Title: Genetic algorithms in search, optimization, and machine learning
+Authors: David E. Goldberg
+Publication Date: 1988-09-01
+Abstract: From the Publisher:
+This book brings together - in an informal and tutorial fashion computer techniques, mathematical tools, research results that will enable both students practitioners to apply genetic algorithms problems many fields. 
+
+Major concepts are illustrated with running examples, major by Pascal programs. No prior knowledge of GAs or genetics is assumed, only a minimum programming mathematics background required.
+--------------------------------------------------------------------------------
+
+Paper #28
+Title: UCI Repository of machine learning databases
+Authors: Catherine Blake
+Publication Date: 1998-01-01
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #29
+Title: Gaussian Processes for Machine Learning
+Authors: Carl Edward Rasmussen, Christopher K. I. Williams
+Publication Date: 2005-11-23
+Abstract: A comprehensive and self-contained introduction to Gaussian processes, which provide a principled, practical, probabilistic approach learning in kernel machines. processes (GPs) GPs have received increased attention the machine-learning community over past decade, this book provides long-needed systematic unified treatment of theoretical practical aspects machine learning. The is self-contained, targeted at researchers students applied statistics. deals with supervised-learning problem for both regression classification, includes detailed algorithms. wide variety covariance (kernel) functions are presented their properties discussed. Model selection discussed from Bayesian classical perspective. Many connections other well-known techniques statistics discussed, including support-vector machines, neural networks, splines, regularization relevance vector machines others. Theoretical issues curves PAC-Bayesian framework treated, several approximation methods large datasets contains illustrative examples exercises, code available on Web. Appendixes mathematical background discussion Markov processes.
+--------------------------------------------------------------------------------
+
+Paper #30
+Title: Pattern Recognition and Machine Learning
+Authors: N/A
+Publication Date: 2006-01-01
+Abstract: N/A
+--------------------------------------------------------------------------------
+
+Paper #31
+Title: Introduction toMachineLearning, Neural Networks, and DeepLearning.
+Authors: Choi RY, Coyner AS, Kalpathy-Cramer J, Chiang MF, Campbell JP.
+Publication Date: Transl Vis Sci Technol
+Abstract: Purpose:To present an overview of current machine learning methods and their use in medical research, focusing on select machine learning techniques, best practices, and deep learning.Methods:A systematic literature search in PubMed was performed for articles pertinent to the topic of artificial intelligence methods used in medicine with an emphasis on ophthalmology.Results:A review of machine learning and deep learning methodology for the audience without an extensive technical computer programming background.Conclusions:Artificial intelligence has a promising future in medicine; however, many challenges remain.Translational relevance:The aim of this review article is to provide the nontechnical readers a layman's explanation of the machine learning methods being used in medicine today. The goal is to provide the reader a better understanding of the potential and challenges of artificial intelligence within the field of medicine.
+--------------------------------------------------------------------------------
+
+Paper #32
+Title: A guide tomachinelearningfor biologists.
+Authors: Greener JG, Kandathil SM, Moffat L, Jones DT.
+Publication Date: Nat Rev Mol Cell Biol
+Abstract: The expanding scale and inherent complexity of biological data have encouraged a growing use of machine learning in biology to build informative and predictive models of the underlying biological processes. All machine learning techniques fit models to data; however, the specific methods are quite varied and can at first glance seem bewildering. In this Review, we aim to provide readers with a gentle introduction to a few key machine learning techniques, including the most recently developed and widely used techniques involving deep neural networks. We describe how different techniques may be suited to specific types of biological data, and also discuss some best practices and points to consider when one is embarking on experiments involving machine learning. Some emerging directions in machine learning methodology are also discussed.
+--------------------------------------------------------------------------------
+
+Paper #33
+Title: eDoctor:machinelearningand the future of medicine.
+Authors: Handelman GS, Kok HK, Chandra RV, Razavi AH, Lee MJ, Asadi H.
+Publication Date: J Intern Med
+Abstract: Machine learning (ML) is a burgeoning field of medicine with huge resources being applied to fuse computer science and statistics to medical problems. Proponents of ML extol its ability to deal with large, complex and disparate data, often found within medicine and feel that ML is the future for biomedical research, personalized medicine, computer-aided diagnosis to significantly advance global health care. However, the concepts of ML are unfamiliar to many medical professionals and there is untapped potential in the use of ML as a research tool. In this article, we provide an overview of the theory behind ML, explore the common ML algorithms used in medicine including their pitfalls and discuss the potential future of ML in medicine.
+--------------------------------------------------------------------------------
+
+Paper #34
+Title: SupervisedMachineLearning: A Brief Primer.
+Authors: Jiang T, Gradus JL, Rosellini AJ.
+Publication Date: Behav Ther
+Abstract: Machine learning is increasingly used in mental health research and has the potential to advance our understanding of how to characterize, predict, and treat mental disorders and associated adverse health outcomes (e.g., suicidal behavior). Machine learning offers new tools to overcome challenges for which traditional statistical methods are not well-suited. This paper provides an overview of machine learning with a specific focus on supervised learning (i.e., methods that are designed to predict or classify an outcome of interest). Several common supervised learning methods are described, along with applied examples from the published literature. We also provide an overview of supervised learning model building, validation, and performance evaluation. Finally, challenges in creating robust and generalizable machine learning algorithms are discussed.
+--------------------------------------------------------------------------------
+
+Paper #35
+Title: Machinelearningfor cardiology.
+Authors: Arfat Y, Mittone G, Esposito R, Cantalupo B, DE Ferrari GM, Aldinucci M.
+Publication Date: Minerva Cardiol Angiol
+Abstract: This paper reviews recent cardiology literature and reports how artificial intelligence tools (specifically, machine learning techniques) are being used by physicians in the field. Each technique is introduced with enough details to allow the understanding of how it works and its intent, but without delving into details that do not add immediate benefits and require expertise in the field. We specifically focus on the principal Machine learning based risk scores used in cardiovascular research. After introducing them and summarizing their assumptions and biases, we discuss their merits and shortcomings. We report on how frequently they are adopted in the field and suggest why this is the case based on our expertise in machine learning. We complete the analysis by reviewing how corresponding statistical approaches compare with them. Finally, we discuss the main open issues in applying machine learning tools to cardiology tasks, also drafting possible future directions. Despite the growing interest in these tools, we argue that there are many still underutilized techniques: while neural networks are slowly being incorporated in cardiovascular research, other important techniques such as semi-supervised learning and federated learning are still underutilized. The former would allow practitioners to harness the information contained in large datasets that are only partially labeled, while the latter would foster collaboration between institutions allowing building larger and better models.
+--------------------------------------------------------------------------------
+
+Paper #36
+Title: Review ofmachinelearningand deeplearningmodels for toxicity prediction.
+Authors: Guo W, Liu J, Dong F, Song M, Li Z, Khan MKH, Patterson TA, Hong H.
+Publication Date: Exp Biol Med (Maywood)
+Abstract: The ever-increasing number of chemicals has raised public concerns due to their adverse effects on human health and the environment. To protect public health and the environment, it is critical to assess the toxicity of these chemicals. Traditionalin vitroandin vivotoxicity assays are complicated, costly, and time-consuming and may face ethical issues. These constraints raise the need for alternative methods for assessing the toxicity of chemicals. Recently, due to the advancement of machine learning algorithms and the increase in computational power, many toxicity prediction models have been developed using various machine learning and deep learning algorithms such as support vector machine, random forest,k-nearest neighbors, ensemble learning, and deep neural network. This review summarizes the machine learning- and deep learning-based toxicity prediction models developed in recent years. Support vector machine and random forest are the most popular machine learning algorithms, and hepatotoxicity, cardiotoxicity, and carcinogenicity are the frequently modeled toxicity endpoints in predictive toxicology. It is known that datasets impact model performance. The quality of datasets used in the development of toxicity prediction models using machine learning and deep learning is vital to the performance of the developed models. The different toxicity assignments for the same chemicals among different datasets of the same type of toxicity have been observed, indicating benchmarking datasets is needed for developing reliable toxicity prediction models using machine learning and deep learning algorithms. This review provides insights into current machine learning models in predictive toxicology, which are expected to promote the development and application of toxicity prediction models in the future.
+--------------------------------------------------------------------------------
+
+Paper #37
+Title: MachineLearningPrinciples for Radiology Investigators.
+Authors: Borstelmann SM.
+Publication Date: Acad Radiol
+Abstract: Artificial intelligence and deep learning are areas of high interest for radiology investigators at present. However, the field of machine learning encompasses multiple statistics-based techniques useful for investigators, which may be complementary to deep learning approaches. After a refresher in basic statistical concepts, relevant considerations for machine learning practitioners are reviewed: regression, classification, decision boundaries, and bias-variance tradeoff. Regularization, ground truth, and populations are discussed along with compute and data management principles. Advanced statistical machine learning techniques including bootstrapping, bagging, boosting, decision trees, random forest, XGboost, and support vector machines are reviewed along with relevant examples from the radiology literature.
+--------------------------------------------------------------------------------
+
+Paper #38
+Title: A Review onMachineLearningfor EEG Signal Processing in Bioengineering.
+Authors: Hosseini MP, Hosseini A, Ahi K.
+Publication Date: IEEE Rev Biomed Eng
+Abstract: Electroencephalography (EEG) has been a staple method for identifying certain health conditions in patients since its discovery. Due to the many different types of classifiers available to use, the analysis methods are also equally numerous. In this review, we will be examining specifically machine learning methods that have been developed for EEG analysis with bioengineering applications. We reviewed literature from 1988 to 2018 to capture previous and current classification methods for EEG in multiple applications. From this information, we are able to determine the overall effectiveness of each machine learning method as well as the key characteristics. We have found that all the primary methods used in machine learning have been applied in some form in EEG classification. This ranges from Naive-Bayes to Decision Tree/Random Forest, to Support Vector Machine (SVM). Supervised learning methods are on average of higher accuracy than their unsupervised counterparts. This includes SVM and KNN. While each of the methods individually is limited in their accuracy in their respective applications, there is hope that the combination of methods when implemented properly has a higher overall classification accuracy. This paper provides a comprehensive overview of Machine Learning applications used in EEG analysis. It also gives an overview of each of the methods and general applications that each is best suited to.
+--------------------------------------------------------------------------------
+
+Paper #39
+Title: The use of artificial intelligence,machinelearningand deeplearningin oncologic histopathology.
+Authors: Sultan AS, Elgharib MA, Tavares T, Jessri M, Basile JR.
+Publication Date: J Oral Pathol Med
+Abstract: Background:Recently, there has been a momentous drive to apply advanced artificial intelligence (AI) technologies to diagnostic medicine. The introduction of AI has provided vast new opportunities to improve health care and has introduced a new wave of heightened precision in oncologic pathology. The impact of AI on oncologic pathology has now become apparent, and its use with respect to oral oncology is still in the nascent stage.Discussion:A foundational overview of AI classification systems used in medicine and a review of common terminology used in machine learning and computational pathology will be presented. This paper provides a focused review on the recent advances in AI and deep learning in oncologic histopathology and oral oncology. In addition, specific emphasis on recent studies that have applied these technologies to oral cancer prognostication will also be discussed.Conclusion:Machine and deep learning methods designed to enhance prognostication of oral cancer have been proposed with much of the work focused on prediction models on patient survival and locoregional recurrences in patients with oral squamous cell carcinomas (OSCC). Few studies have explored machine learning methods on OSCC digital histopathologic images. It is evident that further research at the whole slide image level is needed and future collaborations with computer scientists may progress the field of oral oncology.
+--------------------------------------------------------------------------------
+
+Paper #40
+Title: Machinelearningin suicide science: Applications and ethics.
+Authors: Linthicum KP, Schafer KM, Ribeiro JD.
+Publication Date: Behav Sci Law
+Abstract: For decades, our ability to predict suicide has remained at near-chance levels. Machine learning has recently emerged as a promising tool for advancing suicide science, particularly in the domain of suicide prediction. The present review provides an introduction to machine learning and its potential application to open questions in suicide research. Although only a few studies have implemented machine learning for suicide prediction, results to date indicate considerable improvement in accuracy and positive predictive value. Potential barriers to algorithm integration into clinical practice are discussed, as well as attendant ethical issues. Overall, machine learning approaches hold promise for accurate, scalable, and effective suicide risk detection; however, many critical questions and issues remain unexplored.
+--------------------------------------------------------------------------------
+
