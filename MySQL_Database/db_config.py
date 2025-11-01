@@ -1,6 +1,6 @@
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "Ketan@777",
+    "password": "nahi_bataunga",
     "database": "Intelli_Research_Project"
 }
